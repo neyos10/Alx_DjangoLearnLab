@@ -12,8 +12,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Book
 from .forms import BookForm
 from .models import Library
-
-
+from django.views.generic.detail import DetailView
+from .forms import BookForm
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
 @permission_required('relationship_app.can_add_book')
 def add_book(request):
     if request.method == 'POST':
@@ -107,17 +109,8 @@ class LibraryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.filter(library=self.object)
         return context
-    from django.shortcuts import render
-from django.views.generic import DetailView
-from .models import Library
-
-class LibraryDetailView(DetailView):
-    model = Library
-    template_name = 'library_detail.html'  # Nom du template pour afficher les détails
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        library = self.get_object()
-        context['books'] = library.books.all()  # Récupère tous les livres associés à la bibliothèque
-        return context
-
+class AddBookView(CreateView):
+    model = Book
+    form_class = BookForm
+    template_name = 'relationship_app/add_book.html'
+    success_url = reverse_lazy('book_list')
